@@ -1,7 +1,12 @@
+import logging
+
 import requests
 from ics import Calendar, Event
 
 from .constants import DEFAULT_URL
+
+logger = logging.getLogger(__name__)
+
 
 class Shifts(object):
     def __init__(self, user):
@@ -11,7 +16,8 @@ class Shifts(object):
 
     def _sync_shifts(self, api_url=DEFAULT_URL):
         partner_id = self.user.partner_id
-        shifts = requests.get(f'{api_url}/shifts/get_list_shift_partner/{partner_id}')
+        logger.debug(f"Syncing shifts for {partner_id}")
+        shifts = requests.get(f"{api_url}/shifts/get_list_shift_partner/{partner_id}")
         self.shifts = shifts.json()
 
     def to_ics(self):
@@ -19,10 +25,9 @@ class Shifts(object):
         for shift in self.shifts:
             event = Event(
                 name=f'Cagette - {shift["shift_type"]}',
-                begin=shift['date_begin'],
-                end=shift['date_end'],
-                description=shift.get('shift_id', ('',))[-1]
+                begin=shift["date_begin"],
+                end=shift["date_end"],
+                description=shift.get("shift_id", ("",))[-1],
             )
             calendar.events.add(event)
         return calendar
-
