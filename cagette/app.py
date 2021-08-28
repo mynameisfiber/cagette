@@ -38,5 +38,17 @@ def ics_email_birthday(email, birthday):
     return calendar_response_from_user(user)
 
 
+@app.route("/user/partnerid/<email>/<birthday>")
+def user_partnerid_email_birthday(email, birthday):
+    if not len(birthday) == 8:
+        return "Invalid Birthday", 400
+
+    try:
+        user = User.from_email_birthday(email, birthday)
+    except ValueError as e:
+        return str(e), 400
+    return user.partner_id
+
+
 if __name__ == "__main__":
     pass
