@@ -15,7 +15,7 @@ class Shifts(object):
         self._sync_shifts()
 
     def _sync_shifts(self, api_url=DEFAULT_URL):
-        partner_id = self.user.partner_id
+        partner_id = self.user.meta.get("parent_id") or self.user.partner_id
         logger.debug(f"Syncing shifts for {partner_id}")
         shifts = requests.get(f"{api_url}/shifts/get_list_shift_partner/{partner_id}")
         self.shifts = shifts.json()

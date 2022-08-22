@@ -45,14 +45,19 @@ def email_birthday_to_user_data(email, birthday, api_url=DEFAULT_URL):
         return user_data
 
 
+def load_dirty_json(raw_json):
+    raw_json = re.sub('parseInt\("([^"]+)", 10\)', r"\1", raw_json)
+    return json.loads(raw_json)
+
+
 def extract_data_from_login(dom):
-    for candidate in dom.xpath('.//script[contains(text(), "dataPartner")]'):
+    for candidate in dom.xpath('.//script[contains(text(), "partner_data")]'):
         try:
             data_raw = re.search(
-                r"dataPartner = (?P<data>\{[^}]+})", candidate.text, re.MULTILINE
+                r"var partner_data = (?P<data>\{[^}]+})", candidate.text, re.MULTILINE
             )
-            data = json.loads(data_raw.groupdict()["data"])
-            return data
+            data_tmp = data_raw.groupdict()["data"]
+            return load_dirty_json(data_tmp)
         except (KeyError, ValueError):
             pass
     return None
