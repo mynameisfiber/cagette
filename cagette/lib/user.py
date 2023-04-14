@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 class User(object):
     def __init__(self, partner_id, **meta):
-        self.partner_id = partner_id
-        self.meta = meta
+        self.partner_id: int = partner_id
+        self.meta: dict = meta
 
     @classmethod
     def from_email_birthday(cls, email, birthday, api_url=DEFAULT_URL):
@@ -19,7 +19,7 @@ class User(object):
         return cls(**user_data)
 
     @cached_property
-    def name(self):
+    def name(self) -> str:
         try:
             name_raw = self.meta["name"]
             return name_raw.split("-", 1)[-1].strip()

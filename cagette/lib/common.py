@@ -2,6 +2,7 @@ import json
 import logging
 import re
 from functools import lru_cache
+import typing as T
 
 import requests
 from lxml import html
@@ -11,7 +12,7 @@ from .constants import DEFAULT_URL
 logger = logging.getLogger(__name__)
 
 
-def get_form_params(form):
+def get_form_params(form) -> dict:
     params = {}
     for element in form.xpath(".//input[@name and @value]"):
         name = element.attrib["name"]
@@ -50,13 +51,15 @@ def load_dirty_json(raw_json):
     return json.loads(raw_json)
 
 
-def extract_data_from_login(dom):
+def extract_data_from_login(dom) -> T.Union[dict, None]:
     for candidate in dom.xpath('.//script[contains(text(), "partner_data")]'):
         try:
             data_raw = re.search(
                 r"var partner_data = (?P<data>\{[^}]+})", candidate.text, re.MULTILINE
             )
-            data_tmp = data_raw.groupdict()["data"]
+            if not data_raw:
+                continue
+            data_tmp = data_raw.group("data")
             return load_dirty_json(data_tmp)
         except (KeyError, ValueError):
             pass
